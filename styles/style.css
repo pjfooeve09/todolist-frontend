@@ -51,6 +51,14 @@
     font-style: italic;
 }
 
+#favorite-button {
+    background-color: black;
+}
+
+#parent {
+    color: rgba(189, 85, 0, 0.945);
+}
+
 li {
     font-size: 20px;
     font-weight: bold;

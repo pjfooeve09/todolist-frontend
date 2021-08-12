@@ -1,10 +1,15 @@
 class List {
-    constructor (title){
+    constructor (id, title){
+        this.id = id
         this.title = title
     }
 
     renderList(){
-        let list = document.getElementById("list-container")
-        list.innerHTML += `<h2 id="title"> ${this.title} </h2>`
+        let listContainer = document.getElementById("list-container")
+        listContainer.innerHTML += `
+        <h2 list-id=${this.id} id="title"> ${this.title}</h2>
+        `
     }
+    
 }
+

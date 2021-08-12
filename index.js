@@ -1,15 +1,13 @@
 let listContainer = document.getElementById("list-container")
 let itemContainer = document.getElementById("item-container")
 let listForm = document.getElementById("list-form")
-let itemForm = document.getElementById("item-form")
 let listSubmitButton = document.getElementById("list-submit-button")
 let itemSubmitButton = document.getElementById("item-submit-button")
 
 document.addEventListener("DOMContentLoaded", () => {
     fetchList()
-    fetchItems()
     submitList()
-    submitItem()
+    fetchItems()
     updateItem()
 })
 
@@ -17,17 +15,9 @@ function submitList(){
     listForm.addEventListener('submit', listFormSubmission)
 }
 
-function submitItem(){
-    itemForm.addEventListener('submit', itemFormSubmission)
-}
-
 function updateItem(){
     itemContainer.addEventListener("click", editItem)
 }  
-
-function disableListForm(){
-    listSubmitButton.disabled = true
-}
 
 const BASE_URL = "http://localhost:3000/api/v1"
 
@@ -36,9 +26,15 @@ function fetchList(){
     .then(resp => resp.json()) //json return another promise
     .then(list => {
         for (const lists of list.data){
-            let list = new List (lists.attributes.title)
+            let list = new List (lists.attributes.id, lists.attributes.title)
         list.renderList()
-        disableListForm()
+        listContainer.innerHTML += `
+        <form class="item-form" name="item-form-${lists.attributes.id}" onsubmit="itemFormSubmission(${lists.attributes.id})">
+        <input type="hidden" name="item-parent" value="${lists.attributes.title}">
+        <input type="text" name="item-content" class="item-content">
+            <input type="hidden" name="list_id" value=${lists.attributes.id} class="item-content">
+            <input type="submit" class="item-submit-button" value="Add an Item">
+        </form>`
         } 
     })
 }
@@ -48,7 +44,8 @@ function fetchItems(){
     .then(resp => resp.json())
     .then(item => {
         for (const items of item.data){
-            let item = new Item (items.id, items.attributes.content)
+            console.log(items)
+            let item = new Item (items.id, items.attributes.content, items.attributes.parent)
         item.renderItem()
         }
     })
@@ -58,7 +55,7 @@ function listFormSubmission(){
     event.preventDefault()
     let title = document.getElementById("list-title").value
     
-    let list = {
+    let list = { 
         title: title
     }
 
@@ -72,19 +69,30 @@ function listFormSubmission(){
     })
     .then(resp => resp.json()) 
     .then(list => { 
-        let l = new List(list.data.attributes.title)
+        let l = new List(list.data.attributes.id, list.data.attributes.title)
         l.renderList()
-        listForm.reset()
-        disableListForm()
-    }) 
+        listContainer.innerHTML += `
+        <form class="item-form" name="item-form-${list.data.attributes.id}" onsubmit="itemFormSubmission(${list.data.attributes.id})">
+        <input type="hidden" name="item-parent" value="${list.data.attributes.title}">
+            <input type="text" name="item-content" class="item-content">
+            <input type="hidden" name="list_id" value=${list.data.attributes.id} class="item-content">
+            <input type="submit" class="item-submit-button" value="Add an Item">
+         </form>`
+        listForm.reset()     
+    })
 }
 
-function itemFormSubmission(){
+function itemFormSubmission(formId){
     event.preventDefault()
-    let content = document.getElementById("item-content").value
+    let formName = "item-form-" + formId;
+    let content = document.forms[formName]["item-content"].value;
+    let listId = document.forms[formName]["list_id"].value;
+    let itemParent = document.forms[formName]["item-parent"].value
 
     let item = {
-        content: content
+        content: content,
+        parent: itemParent,
+        list_id: listId,
     }
 
     fetch(`${BASE_URL}/items`, {
@@ -97,9 +105,9 @@ function itemFormSubmission(){
     })
     .then(resp => resp.json())
     .then(item => {
-      let i = new Item(item.data.attributes.id, item.data.attributes.content)
+      let i = new Item(item.data.attributes.id, item.data.attributes.content, itemParent)
+      console.log(i)
       i.renderItem()
-      itemForm.reset()
     })
 }
 
@@ -108,7 +116,7 @@ function deleteItem(){
     fetch(`${BASE_URL}/items/${itemId}`, {
         method: 'DELETE',
     })
-    this.location.reload() //this refers to the window in this case, NOT instance of item. this method will reload the page automatically
+    this.location.reload() 
 }
 
 function editItem(){
