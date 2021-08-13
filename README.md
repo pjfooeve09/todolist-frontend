@@ -3,9 +3,9 @@ This app allows users to create a todo list. Users can create a new todo list an
 
 STRETCH GOALS
 
-• Utilizes the MVC framework: a list has many items, and an item belongs to a list
-• Building a full CRUD that includes create, read, edit, and delete
-• Using FastJsonapi to create model serializers
+• Utilize the MVC framework: a list has many items, and an item belongs to a list
+• Build a full CRUD that includes create, read, edit, and delete
+• Use FastJsonapi to create model serializers
 • Use Javascript to connect to Rails API using fetch
 • Use fetch to implement methods that include: POST, PATCH, and DELETE
 
