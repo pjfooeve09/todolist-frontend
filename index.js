@@ -32,7 +32,7 @@ function fetchList(){
         <form class="item-form" name="item-form-${lists.attributes.id}" onsubmit="itemFormSubmission(${lists.attributes.id})">
         <input type="hidden" name="item-parent" value="${lists.attributes.title}">
         <input type="text" name="item-content" class="item-content">
-            <input type="hidden" name="list_id" value=${lists.attributes.id} class="item-content">
+            <input type="hidden" name="list-id" value=${lists.attributes.id} class="item-content">
             <input type="submit" class="item-submit-button" value="Add an Item">
         </form>`
         } 
@@ -44,7 +44,6 @@ function fetchItems(){
     .then(resp => resp.json())
     .then(item => {
         for (const items of item.data){
-            console.log(items)
             let item = new Item (items.id, items.attributes.content, items.attributes.parent)
         item.renderItem()
         }
@@ -72,10 +71,10 @@ function listFormSubmission(){
         let l = new List(list.data.attributes.id, list.data.attributes.title)
         l.renderList()
         listContainer.innerHTML += `
-        <form class="item-form" name="item-form-${list.data.attributes.id}" onsubmit="itemFormSubmission(${list.data.attributes.id})">
-        <input type="hidden" name="item-parent" value="${list.data.attributes.title}">
+        <form onsubmit="itemFormSubmission(${list.data.attributes.id})">
+            <input type="hidden" name="item-parent" value="${list.data.attributes.title}">
             <input type="text" name="item-content" class="item-content">
-            <input type="hidden" name="list_id" value=${list.data.attributes.id} class="item-content">
+            <input type="hidden" name="list-id" value=${list.data.attributes.id} class="item-content">
             <input type="submit" class="item-submit-button" value="Add an Item">
          </form>`
         listForm.reset()     
@@ -84,10 +83,9 @@ function listFormSubmission(){
 
 function itemFormSubmission(formId){
     event.preventDefault()
-    let formName = "item-form-" + formId;
-    let content = document.forms[formName]["item-content"].value;
-    let listId = document.forms[formName]["list_id"].value;
-    let itemParent = document.forms[formName]["item-parent"].value
+    let content = document.forms[formId]["item-content"].value;
+    let listId = document.forms[formId]["list-id"].value;
+    let itemParent = document.forms[formId]["item-parent"].value
 
     let item = {
         content: content,
@@ -106,7 +104,6 @@ function itemFormSubmission(formId){
     .then(resp => resp.json())
     .then(item => {
       let i = new Item(item.data.attributes.id, item.data.attributes.content, itemParent)
-      console.log(i)
       i.renderItem()
     })
 }
