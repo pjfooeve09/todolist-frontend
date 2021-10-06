@@ -5,7 +5,7 @@ class List {
     }
 
     renderList(){
-        let listContainer = document.getElementById("list-container")
+        const listContainer = document.getElementById("list-container")
         listContainer.innerHTML += `
         <h2 list-id=${this.id} id="title"> ${this.title}</h2>
         `

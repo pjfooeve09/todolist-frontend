@@ -1,14 +1,15 @@
-let listContainer = document.getElementById("list-container")
-let itemContainer = document.getElementById("item-container")
-let listForm = document.getElementById("list-form")
-let listSubmitButton = document.getElementById("list-submit-button")
-let itemSubmitButton = document.getElementById("item-submit-button")
+const listContainer = document.getElementById("list-container")
+const itemContainer = document.getElementById("item-container")
+const listForm = document.getElementById("list-form")
+const dropdownMenu = document.getElementById("dropdownMenu")
 
 document.addEventListener("DOMContentLoaded", () => {
     fetchList()
     submitList()
     fetchItems()
     updateItem()
+    listDropdown()
+    filterItems()
 })
 
 function submitList(){
@@ -26,7 +27,7 @@ function fetchList(){
     .then(resp => resp.json()) //json return another promise
     .then(list => {
         for (const lists of list.data){
-            let list = new List (lists.attributes.id, lists.attributes.title)
+            const list = new List (lists.attributes.id, lists.attributes.title)
         list.renderList()
         listContainer.innerHTML += `
         <form class="item-form" name="item-form-${lists.attributes.id}" onsubmit="itemFormSubmission(${lists.attributes.id})">
@@ -44,7 +45,7 @@ function fetchItems(){
     .then(resp => resp.json())
     .then(item => {
         for (const items of item.data){
-            let item = new Item (items.id, items.attributes.content, items.attributes.parent)
+            const item = new Item (items.id, items.attributes.content, items.attributes.parent)
         item.renderItem()
         }
     })
@@ -52,9 +53,9 @@ function fetchItems(){
 
 function listFormSubmission(){
     event.preventDefault()
-    let title = document.getElementById("list-title").value
+    const title = document.getElementById("list-title").value
     
-    let list = { 
+    const list = { 
         title: title
     }
 
@@ -68,7 +69,7 @@ function listFormSubmission(){
     })
     .then(resp => resp.json()) 
     .then(list => { 
-        let l = new List(list.data.attributes.id, list.data.attributes.title)
+        const l = new List(list.data.attributes.id, list.data.attributes.title)
         l.renderList()
         listContainer.innerHTML += `
         <form onsubmit="itemFormSubmission(${list.data.attributes.id})">
@@ -83,11 +84,11 @@ function listFormSubmission(){
 
 function itemFormSubmission(formId){
     event.preventDefault()
-    let content = document.forms[formId]["item-content"].value;
-    let listId = document.forms[formId]["list-id"].value;
-    let itemParent = document.forms[formId]["item-parent"].value
+    const content = document.forms[formId]["item-content"].value;
+    const itemParent = document.forms[formId]["item-parent"].value;
+    const listId = document.forms[formId]["list-id"].value;
 
-    let item = {
+    const item = {
         content: content,
         parent: itemParent,
         list_id: listId,
@@ -103,26 +104,30 @@ function itemFormSubmission(formId){
     })
     .then(resp => resp.json())
     .then(item => {
-      let i = new Item(item.data.attributes.id, item.data.attributes.content, itemParent)
+      const i = new Item(item.data.attributes.id, item.data.attributes.content, itemParent)
       i.renderItem()
     })
 }
 
 function deleteItem(){
-    let itemId = parseInt(event.target.dataset.id)
+    const itemId = parseInt(event.target.dataset.id)
     fetch(`${BASE_URL}/items/${itemId}`, {
-        method: 'DELETE',
+        method: 'delete',
+        headers: {
+            'Content-type': 'application/json'
+        },
     })
-    this.location.reload() 
+    let parent = event.target.parentElement.parentElement
+    parent.remove()
 }
 
 function editItem(){
-    let li = event.target
+    const li = event.target
     li.contentEditable = true
-    let itemId = li.attributes.getNamedItem("content-id").value
-    let content = li.innerHTML
+    const itemId = li.attributes.getNamedItem("content-id").value
+    const content = li.innerHTML
     
-    let item = {
+    const item = {
         content: content
     }
 
@@ -136,7 +141,32 @@ function editItem(){
     })
     .then(resp => resp.json())
     .then(item => {
-        let i = new Item(item.data.attributes.id, item.data.attributes.content)
+        const i = new Item(item.data.attributes.id, item.data.attributes.content)
         return i
     })
+}
+
+function listDropdown(){
+    fetch(`${BASE_URL}/items`)
+    .then(resp => resp.json())
+    .then(item => {
+       const arr = Item.all.map(a => a.parent)
+       const items = [...new Set(arr)]    
+        for (let i = 0; i < items.length; i++) {
+            const option = document.createElement('option');
+            option.innerHTML = items[i];    
+            dropdownMenu.appendChild(option);
+        }
+    })
+}
+
+function filterItems(){
+    const filteredItems = document.getElementById("filteredItems")
+    const value = dropdownMenu.value;
+    const items = Item.all.filter(item => item.parent === value ? item.content : filteredItems.innerHTML = "")
+    items.map(item => filteredItems.innerHTML +=
+        `<ul>
+            <li>${item.content}</li>
+         </ul>
+    `)
 }
