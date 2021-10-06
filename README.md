@@ -1,5 +1,5 @@
 # todolist-frontend
-This app allows users to create a todo list. Users can create a new todo list and then create, view, modify, and deconste items in their list. This app is written with a Rails API backend and Javascript frontend.
+This app allows users to create a todo list. Users can create a new todo list and then create, view, modify, and delete items in their list. This app is written with a Rails API backend and Javascript frontend.
 
 STRETCH GOALS
 
