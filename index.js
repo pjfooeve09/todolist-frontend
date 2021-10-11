@@ -117,8 +117,7 @@ function deleteItem(){
             'Content-type': 'application/json'
         },
     })
-    let parent = event.target.parentElement.parentElement
-    parent.remove()
+    location.reload()
 }
 
 function editItem(){
@@ -160,13 +159,3 @@ function listDropdown(){
     })
 }
 
-function filterItems(){
-    const filteredItems = document.getElementById("filteredItems")
-    const value = dropdownMenu.value;
-    const items = Item.all.filter(item => item.parent === value ? item.content : filteredItems.innerHTML = "")
-    items.map(item => filteredItems.innerHTML +=
-        `<ul>
-            <li>${item.content}</li>
-         </ul>
-    `)
-}
