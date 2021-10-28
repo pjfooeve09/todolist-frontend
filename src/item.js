@@ -1,8 +1,10 @@
 class Item {
+    static all = []
     constructor (id, content, parent){
         this.id = id
         this.content = content
         this.parent = parent 
+        Item.all.push(this)
     }
     
     renderItem(){
